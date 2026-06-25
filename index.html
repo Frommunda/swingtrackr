@@ -502,6 +502,51 @@ header h1 {
   padding: 20px 20px 10px; font-size: 11px; color: var(--text-tertiary);
   font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px;
 }
+/* ── Club editor ── */
+.club-edit-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+}
+.club-edit-fields { display: flex; gap: 8px; flex: 1; min-width: 0; }
+.club-edit-name, .club-edit-brand {
+  background: var(--bg-input); border: 1px solid var(--border); color: var(--text);
+  border-radius: var(--radius-sm); padding: 9px 11px; font-size: 14px; min-width: 0; width: 100%;
+  font-family: inherit;
+}
+.club-edit-name { flex: 1.2; font-weight: 600; }
+.club-edit-brand { flex: 1; color: var(--text-secondary); }
+.club-edit-name:focus, .club-edit-brand:focus { outline: none; border-color: var(--accent); }
+.club-edit-controls { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+.ce-move, .ce-del {
+  background: none; border: none; cursor: pointer; padding: 4px 6px;
+  font-size: 14px; color: var(--text-tertiary); line-height: 1; border-radius: 6px;
+}
+.ce-move:disabled { opacity: 0.25; cursor: default; }
+.ce-del { color: var(--red); font-size: 13px; }
+.ce-move:active, .ce-del:active { background: var(--bg-input); }
+.btn-add-club {
+  width: 100%; padding: 13px; background: none; border: none;
+  border-top: 1px solid var(--border); color: var(--accent);
+  font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.btn-add-club:active { background: var(--bg-input); }
+.club-tools { display: flex; gap: 8px; padding: 12px 14px; border-top: 1px solid var(--border); }
+.btn-ghost {
+  flex: 1; padding: 11px; background: var(--bg-input); border: 1px solid var(--border);
+  color: var(--text); font-size: 13px; font-weight: 600; border-radius: var(--radius-sm);
+  cursor: pointer; font-family: inherit;
+}
+.btn-ghost.danger { color: var(--red); }
+.btn-ghost:active { opacity: 0.7; }
+.club-tools-hint { padding: 0 14px 14px; font-size: 12px; color: var(--text-tertiary); line-height: 1.4; }
+.setup-intro { font-size: 13px; color: var(--text-secondary); margin: -4px 0 16px; }
+.setup-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.setup-chip {
+  padding: 9px 13px; background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: 999px; color: var(--text-secondary); font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all 0.18s ease;
+}
+.setup-chip.on { background: var(--accent); color: #0a0f0a; border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -561,6 +606,35 @@ header h1 {
         <button class="pill" data-value="mph">mph</button>
         <button class="pill" data-value="kph">km/h</button>
       </div>
+    </div>
+  </div>
+
+  <div class="section-label">My Clubs</div>
+  <div class="settings-section">
+    <div id="clubEditor"></div>
+    <button class="btn-add-club" onclick="addClub()">+ Add Club</button>
+    <div class="club-tools">
+      <button class="btn-ghost" onclick="openQuickSetup()">Quick Setup</button>
+      <button class="btn-ghost danger" onclick="startFresh()">Start Fresh</button>
+    </div>
+    <div class="club-tools-hint">Quick Setup builds a bag from common clubs. Start Fresh clears clubs &amp; shots for a new player.</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="setupModal">
+  <div class="modal-bg" onclick="closeQuickSetup()"></div>
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>Build Your Bag</h2>
+    <p class="setup-intro">Tap the clubs you carry, then set a brand.</p>
+    <div class="input-group">
+      <label>Default Brand <small style="text-transform:none;letter-spacing:0">optional</small></label>
+      <input type="text" id="setupBrand" class="notes-input" placeholder="e.g. Titleist">
+    </div>
+    <div class="setup-chips" id="setupChips"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeQuickSetup()">Cancel</button>
+      <button class="btn-save" onclick="applyQuickSetup()">Create Bag</button>
     </div>
   </div>
 </div>
@@ -624,7 +698,7 @@ header h1 {
 <div class="toast" id="toast"></div>
 
 <script>
-const CLUBS = [
+const DEFAULT_CLUBS = [
   { id: 'dr', name: 'Driver', brand: 'TaylorMade' },
   { id: '3w', name: '3 Wood', brand: 'TaylorMade' },
   { id: '4i', name: '4 Iron', brand: 'Mizuno' },
@@ -638,6 +712,31 @@ const CLUBS = [
   { id: 'sw', name: 'SW (54)', brand: 'Mizuno' },
   { id: 'lw', name: 'LW (58)', brand: 'Mizuno' },
 ];
+
+// Common clubs offered in the Quick Setup bag builder.
+const PRESET_CLUBS = [
+  { id: 'dr', name: 'Driver' },
+  { id: '3w', name: '3 Wood' }, { id: '5w', name: '5 Wood' }, { id: '7w', name: '7 Wood' },
+  { id: '2h', name: '2 Hybrid' }, { id: '3h', name: '3 Hybrid' }, { id: '4h', name: '4 Hybrid' }, { id: '5h', name: '5 Hybrid' },
+  { id: '3i', name: '3 Iron' }, { id: '4i', name: '4 Iron' }, { id: '5i', name: '5 Iron' }, { id: '6i', name: '6 Iron' },
+  { id: '7i', name: '7 Iron' }, { id: '8i', name: '8 Iron' }, { id: '9i', name: '9 Iron' },
+  { id: 'pw', name: 'PW' }, { id: 'gw', name: 'GW' }, { id: 'aw', name: 'AW' },
+  { id: 'sw', name: 'SW' }, { id: 'lw', name: 'LW' }, { id: '60', name: '60°' },
+  { id: 'putter', name: 'Putter' },
+];
+
+const CLUBS_KEY = 'swingtrackr_clubs';
+function loadClubs() {
+  try {
+    const c = JSON.parse(localStorage.getItem(CLUBS_KEY));
+    if (Array.isArray(c) && c.length) return c;
+  } catch (e) {}
+  return DEFAULT_CLUBS.map(c => ({ ...c }));
+}
+let CLUBS = loadClubs();
+function saveClubs() { localStorage.setItem(CLUBS_KEY, JSON.stringify(CLUBS)); }
+function newClubId() { return 'c' + Math.random().toString(36).slice(2, 8); }
+function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 const STORAGE_KEY = 'swingtrackr_shots';
 const SETTINGS_KEY = 'swingtrackr_settings';
@@ -1035,12 +1134,112 @@ function toggleSettings() {
   const p = document.getElementById('settingsView');
   if (p.classList.contains('active')) {
     p.classList.remove('active');
+    renderAll();
     document.querySelector('[data-view="log"]').click();
   } else {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    renderClubEditor();
     p.classList.add('active');
   }
+}
+
+// ── Club management ──
+function renderClubEditor() {
+  document.getElementById('clubEditor').innerHTML = CLUBS.map((club, i) => `
+    <div class="club-edit-row">
+      <div class="club-edit-fields">
+        <input class="club-edit-name" value="${esc(club.name)}" placeholder="Club" maxlength="18"
+               oninput="updateClubField(${i},'name',this.value)">
+        <input class="club-edit-brand" value="${esc(club.brand)}" placeholder="Brand" maxlength="20"
+               oninput="updateClubField(${i},'brand',this.value)">
+      </div>
+      <div class="club-edit-controls">
+        <button class="ce-move" onclick="moveClub(${i},-1)" ${i===0?'disabled':''}>&#9650;</button>
+        <button class="ce-move" onclick="moveClub(${i},1)" ${i===CLUBS.length-1?'disabled':''}>&#9660;</button>
+        <button class="ce-del" onclick="removeClub(${i})">&#10005;</button>
+      </div>
+    </div>`).join('');
+}
+
+function updateClubField(i, field, val) {
+  if (!CLUBS[i]) return;
+  CLUBS[i][field] = val.trim();
+  saveClubs();
+}
+
+function addClub() {
+  CLUBS.push({ id: newClubId(), name: '', brand: '' });
+  saveClubs();
+  renderClubEditor();
+  const inputs = document.querySelectorAll('.club-edit-name');
+  if (inputs.length) inputs[inputs.length - 1].focus();
+}
+
+function removeClub(i) {
+  const club = CLUBS[i];
+  if (!club) return;
+  if (getClubStats(club.id)) {
+    if (!confirm(`Delete ${club.name || 'this club'}? Its logged shots will also be removed.`)) return;
+    const shots = getShots().filter(s => s.clubId !== club.id);
+    saveShots(shots);
+  }
+  CLUBS.splice(i, 1);
+  saveClubs();
+  renderClubEditor();
+}
+
+function moveClub(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= CLUBS.length) return;
+  [CLUBS[i], CLUBS[j]] = [CLUBS[j], CLUBS[i]];
+  saveClubs();
+  renderClubEditor();
+}
+
+function startFresh() {
+  if (!confirm('Start fresh? This clears all clubs and logged shots so a new player can set up their own bag.')) return;
+  CLUBS = [];
+  saveClubs();
+  saveShots([]);
+  renderClubEditor();
+  openQuickSetup();
+}
+
+// ── Quick Setup bag builder ──
+let setupSelection = [];
+function openQuickSetup() {
+  setupSelection = CLUBS.length ? CLUBS.map(c => c.id) : PRESET_CLUBS.map(c => c.id);
+  document.getElementById('setupBrand').value = (CLUBS.find(c => c.brand) || {}).brand || '';
+  document.getElementById('setupChips').innerHTML = PRESET_CLUBS.map(c =>
+    `<button class="setup-chip${setupSelection.includes(c.id)?' on':''}" data-id="${c.id}" onclick="toggleSetupChip('${c.id}',this)">${c.name}</button>`
+  ).join('');
+  const m = document.getElementById('setupModal');
+  m.classList.remove('closing');
+  m.classList.add('show');
+}
+function closeQuickSetup() {
+  const m = document.getElementById('setupModal');
+  m.classList.add('closing');
+  setTimeout(() => m.classList.remove('show', 'closing'), 250);
+}
+function toggleSetupChip(id, el) {
+  if (setupSelection.includes(id)) { setupSelection = setupSelection.filter(x => x !== id); el.classList.remove('on'); }
+  else { setupSelection.push(id); el.classList.add('on'); }
+}
+function applyQuickSetup() {
+  if (!setupSelection.length) { showToast('Pick at least one club'); return; }
+  const brand = document.getElementById('setupBrand').value.trim();
+  // Preserve any existing club (by id) so logged shots stay linked; build in preset order.
+  CLUBS = PRESET_CLUBS.filter(p => setupSelection.includes(p.id)).map(p => {
+    const existing = CLUBS.find(c => c.id === p.id);
+    return { id: p.id, name: existing ? existing.name : p.name, brand: existing && existing.brand ? existing.brand : brand };
+  });
+  saveClubs();
+  renderClubEditor();
+  renderAll();
+  closeQuickSetup();
+  showToast('Bag created');
 }
 
 function initSettings() {
