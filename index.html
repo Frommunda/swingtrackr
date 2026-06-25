@@ -186,11 +186,11 @@ header h1 {
 }
 .stat-card-header .chevron.open { transform: rotate(90deg); }
 .stat-card-body {
-  padding: 0 18px 18px;
+  padding: 0 18px;
   max-height: 0; overflow: hidden;
   transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), padding 0.35s;
 }
-.stat-card-body.open { max-height: 2000px; padding-bottom: 18px; }
+.stat-card-body.open { max-height: 2600px; padding-bottom: 18px; }
 .stat-row {
   display: flex; justify-content: space-between; align-items: center;
   font-size: 14px; padding: 7px 0; color: var(--text-secondary);
@@ -235,23 +235,64 @@ header h1 {
 .delete-btn:active { background: rgba(248,113,113,0.15); opacity: 1; }
 .no-data { text-align: center; color: var(--text-tertiary); padding: 60px 20px; font-size: 15px; line-height: 1.6; }
 
+/* ── Visualizations ── */
+.viz-title {
+  font-size: 11px; color: var(--text-tertiary); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px; margin: 16px 0 12px;
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.viz-title .viz-sub { color: var(--text-secondary); font-weight: 600; letter-spacing: 0; text-transform: none; font-size: 12px; }
+/* Dispersion strip */
+.disp-track {
+  position: relative; height: 40px; margin: 0 4px 6px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(248,113,113,0.06), rgba(74,222,128,0.12), rgba(248,113,113,0.06));
+}
+.disp-mean {
+  position: absolute; top: -3px; bottom: -3px; width: 2px;
+  background: var(--accent); border-radius: 2px; transform: translateX(-1px);
+  box-shadow: 0 0 8px var(--accent-mid);
+}
+.disp-dot {
+  position: absolute; top: 50%; width: 11px; height: 11px; border-radius: 50%;
+  background: var(--accent); transform: translate(-50%, -50%);
+  border: 1.5px solid var(--bg-secondary); opacity: 0.85;
+  animation: cardPop 0.4s ease both;
+}
+.disp-scale { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-tertiary); padding: 0 2px; }
+.disp-scale .mean-label { color: var(--accent); font-weight: 700; }
+/* Shape distribution */
+.shape-bar {
+  display: flex; height: 12px; border-radius: 6px; overflow: hidden;
+  background: var(--bg-input); margin-bottom: 10px;
+}
+.shape-seg { height: 100%; transition: width 0.4s; }
+.shape-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.shape-legend span { font-size: 11px; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 5px; }
+.shape-dot { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+
 /* ── Gapping ── */
 .gap-chart { padding: 8px 20px 20px; }
-.gap-bar-row { display: flex; align-items: center; margin-bottom: 8px; animation: fadeInUp 0.4s ease both; }
-.gap-bar-label { width: 48px; font-size: 13px; font-weight: 700; color: var(--text-secondary); flex-shrink: 0; }
+.gap-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; animation: fadeInUp 0.4s ease both; }
+.gap-bar-label { width: 56px; font-size: 13px; font-weight: 700; color: var(--text-secondary); flex-shrink: 0; white-space: nowrap; }
 .gap-bar-track {
   flex: 1; height: 34px; background: var(--bg-card-solid); border-radius: 10px;
   position: relative; overflow: hidden; border: 1px solid var(--border);
 }
 .gap-bar-fill {
-  height: 100%; border-radius: 9px; display: flex; align-items: center;
-  justify-content: flex-end; padding-right: 10px;
-  font-size: 13px; font-weight: 700; color: #fff;
+  height: 100%; border-radius: 9px; min-width: 4px;
   animation: barGrow 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
+.gap-bar-value {
+  width: 56px; text-align: right; flex-shrink: 0;
+  font-size: 14px; font-weight: 700; color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.gap-bar-value small { font-size: 10px; color: var(--text-tertiary); font-weight: 600; margin-left: 2px; }
 .gap-bar-gap {
-  width: 40px; text-align: right; font-size: 12px; font-weight: 600;
-  color: var(--text-tertiary); margin-left: 8px; flex-shrink: 0;
+  width: 38px; text-align: right; font-size: 12px; font-weight: 700;
+  color: var(--text-tertiary); flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
 }
 .rec-card {
   background: var(--gradient-card); border: 1px solid var(--border-light);
@@ -292,6 +333,32 @@ header h1 {
 .ss-club { font-weight: 700; color: var(--text); min-width: 52px; }
 .ss-data { flex: 1; color: var(--text-secondary); }
 .ss-time { font-size: 11px; color: var(--text-tertiary); flex-shrink: 0; }
+
+/* ── Swipe to delete ── */
+.swipe-row {
+  position: relative; overflow: hidden;
+  border-radius: var(--radius-sm); margin-bottom: 6px;
+  background: var(--red);
+}
+.swipe-delete {
+  position: absolute; top: 0; right: 0; bottom: 0; width: 92px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 0.3px;
+  cursor: pointer; background: var(--red);
+}
+.swipe-delete::before {
+  content: '✕'; margin-right: 6px; font-size: 12px;
+}
+.swipe-content {
+  position: relative; z-index: 1; margin-bottom: 0 !important;
+  border-radius: var(--radius-sm);
+  background: #16221a;
+  transform: translateX(0);
+  transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  touch-action: pan-y;
+}
+.swipe-content.dragging { transition: none; }
+.swipe-content.revealed { transform: translateX(-92px); }
 
 /* ── Modal ── */
 .modal-overlay {
@@ -337,6 +404,9 @@ header h1 {
   box-shadow: 0 0 0 4px var(--accent-dim), 0 0 24px var(--accent-dim);
 }
 .input-group input::placeholder { color: var(--text-tertiary); font-weight: 600; }
+.input-group input[type=number]::-webkit-inner-spin-button,
+.input-group input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.input-group input[type=number] { -moz-appearance: textfield; }
 .quick-fields { display: flex; gap: 10px; }
 .quick-fields .input-group { flex: 1; }
 .quick-fields input { font-size: 20px; padding: 14px 10px; }
@@ -615,6 +685,47 @@ function getClubStats(clubId) {
   };
 }
 
+const SHAPE_COLORS = {
+  straight: '#4ade80', draw: '#60a5fa', fade: '#a78bfa',
+  hook: '#f87171', slice: '#fb923c', pull: '#fbbf24', push: '#22d3ee'
+};
+
+function buildDispersionViz(stats, d) {
+  const carries = stats.shots.map(s => s.carry).filter(v => v != null && v > 0);
+  if (carries.length < 2) return '';
+  const min = Math.min(...carries), max = Math.max(...carries);
+  const mean = stats.avgCarry;
+  const range = max - min || 1;
+  // 6% inset on each side so edge dots aren't clipped
+  const pos = v => (6 + ((v - min) / range) * 88).toFixed(1);
+  const dots = carries.map((v, i) =>
+    `<div class="disp-dot" style="left:${pos(v)}%;animation-delay:${i*0.03}s"></div>`).join('');
+  const meanLine = `<div class="disp-mean" style="left:${pos(mean)}%"></div>`;
+  const tight = stats.dispersion <= 6;
+  return `<div class="viz-title">Consistency
+      <span class="viz-sub" style="color:${tight?'var(--accent)':stats.dispersion>10?'var(--orange)':'var(--text-secondary)'}">
+        ±${stats.dispersion} ${d} ${tight?'· tight':stats.dispersion>10?'· loose':''}</span></div>
+    <div class="disp-track">${meanLine}${dots}</div>
+    <div class="disp-scale"><span>${min} ${d}</span><span class="mean-label">avg ${mean}</span><span>${max} ${d}</span></div>`;
+}
+
+function buildShapeViz(stats) {
+  const shapes = stats.shots.map(s => s.shape).filter(Boolean);
+  if (!shapes.length) return '';
+  const counts = {};
+  shapes.forEach(s => counts[s] = (counts[s] || 0) + 1);
+  const order = ['straight','draw','fade','pull','push','hook','slice'];
+  const entries = order.filter(k => counts[k]).map(k => [k, counts[k]]);
+  const total = shapes.length;
+  const segs = entries.map(([k, n]) =>
+    `<div class="shape-seg" style="width:${(n/total*100).toFixed(1)}%;background:${SHAPE_COLORS[k]}"></div>`).join('');
+  const legend = entries.map(([k, n]) =>
+    `<span><span class="shape-dot" style="background:${SHAPE_COLORS[k]}"></span>${k} ${Math.round(n/total*100)}%</span>`).join('');
+  return `<div class="viz-title">Shot Shapes <span class="viz-sub">${total} tracked</span></div>
+    <div class="shape-bar">${segs}</div>
+    <div class="shape-legend">${legend}</div>`;
+}
+
 function renderClubGrid() {
   document.getElementById('clubGrid').innerHTML = CLUBS.map(c => {
     const s = getClubStats(c.id);
@@ -636,7 +747,7 @@ function renderStats() {
     const row = (l, v, u='', cls='') => v != null ? `<div class="stat-row"><span class="label">${l}</span><span class="val ${cls}">${v}${u}</span></div>` : '';
     return `<div class="stat-card">
       <div class="stat-card-header" onclick="toggleCard('${c.id}')">
-        <h3>${c.name} <span style="font-weight:400;color:var(--text-tertiary);font-size:13px">&middot; ${s.count}</span></h3>
+        <h3>${c.name} <span style="font-weight:400;color:var(--text-tertiary);font-size:13px">· ${s.count}</span></h3>
         <div><span class="club-avg">${s.avgCarry || '—'} ${d}</span><span class="chevron ${open?'open':''}"> &#9656;</span></div>
       </div>
       <div class="stat-card-body ${open?'open':''}">
@@ -649,23 +760,27 @@ function renderStats() {
         ${row('Club Speed', s.avgClubSpeed, ' '+s_)}
         ${row('Smash Factor', s.smashFactor, '', s.smashFactor >= 1.45 ? 'highlight' : '')}
         ${row('Launch', s.avgLaunch, '°')}
-        ${row('Spin', s.avgSpin, ' rpm')}
+        ${row('Spin', s.avgSpin != null ? s.avgSpin.toLocaleString() : null, ' rpm')}
         ${s.dominantShape ? row('Tendency', s.dominantShape, '') : ''}
+        ${buildDispersionViz(s, d)}
+        ${buildShapeViz(s)}
         <div class="stat-divider"></div>
-        <div class="shots-header">Individual Shots</div>
+        <div class="shots-header">Individual Shots <span style="float:right;text-transform:none;letter-spacing:0;font-weight:500;opacity:0.7">swipe to delete</span></div>
         ${s.shots.map((shot, i) => {
           const allShots = getShots();
           const realIdx = allShots.findIndex(x => x.time === shot.time && x.clubId === shot.clubId);
           const sf = (shot.ballSpeed && shot.clubSpeed) ? (shot.ballSpeed / shot.clubSpeed).toFixed(2) : null;
-          return `<div class="shot-item">
-            <span class="shot-num">${i+1}</span>
-            <div class="shot-detail">
-              <span class="primary">${shot.carry ? shot.carry+' '+d : ''}${shot.total ? ' / '+shot.total+' total' : ''}</span>
-              ${shot.ballSpeed ? '<br>'+shot.ballSpeed+' '+s_ : ''}${sf ? ' &middot; SF '+sf : ''}
-              ${shot.notes ? '<div class="shot-note">'+shot.notes+'</div>' : ''}
+          return `<div class="swipe-row">
+            <div class="swipe-delete" onclick="deleteShot(${realIdx})">Delete</div>
+            <div class="shot-item swipe-content" data-idx="${realIdx}">
+              <span class="shot-num">${i+1}</span>
+              <div class="shot-detail">
+                <span class="primary">${shot.carry ? shot.carry+' '+d : ''}${shot.total ? ' / '+shot.total+' total' : ''}</span>
+                ${shot.ballSpeed ? '<br>'+shot.ballSpeed+' '+s_ : ''}${sf ? ' · SF '+sf : ''}
+                ${shot.notes ? '<div class="shot-note">'+shot.notes+'</div>' : ''}
+              </div>
+              ${shot.shape ? '<span class="shot-shape-tag">'+shot.shape+'</span>' : ''}
             </div>
-            ${shot.shape ? '<span class="shot-shape-tag">'+shot.shape+'</span>' : ''}
-            <span class="delete-btn" onclick="deleteShot(${realIdx})">&#10005;</span>
           </div>`;
         }).join('')}
       </div>
@@ -693,15 +808,16 @@ function renderGapping() {
   const GAP_WARN = IDEAL_GAP * 2;
 
   let html = clubs.map((c, i) => {
-    const pct = (c.stats.avgCarry / max * 100).toFixed(0);
+    const pct = +(c.stats.avgCarry / max * 100).toFixed(1);
     const gap = i > 0 ? clubs[i-1].stats.avgCarry - c.stats.avgCarry : null;
     const gapColor = gap != null ? (gap > GAP_WARN ? 'var(--red)' : gap > IDEAL_GAP + 4 ? 'var(--orange)' : 'var(--text-tertiary)') : '';
     const short = c.name.replace(' Iron','i').replace(' Wood','w').replace('Driver','Dr');
     return `<div class="gap-bar-row" style="animation-delay:${i*0.05}s">
       <span class="gap-bar-label">${short}</span>
       <div class="gap-bar-track">
-        <div class="gap-bar-fill" style="width:${pct}%;background:${gradients[i%gradients.length]};animation-delay:${i*0.06}s">${c.stats.avgCarry}</div>
+        <div class="gap-bar-fill" style="width:${pct}%;background:${gradients[i%gradients.length]};animation-delay:${i*0.06}s"></div>
       </div>
+      <span class="gap-bar-value">${c.stats.avgCarry}<small>${d}</small></span>
       <span class="gap-bar-gap" style="color:${gapColor}">${gap != null ? (gap >= 0 ? '+' : '') + gap : ''}</span>
     </div>`;
   }).join('');
@@ -758,7 +874,7 @@ function renderHistory() {
       <div class="session-header" onclick="toggleSession(${si})">
         <div>
           <div class="session-date">${dateStr}</div>
-          <div class="session-meta">${t1} – ${t2} &middot; ${sess.shots.length} shots &middot; ${clubsHit} clubs</div>
+          <div class="session-meta">${t1} – ${t2} · ${sess.shots.length} shots · ${clubsHit} clubs</div>
         </div>
         <span class="chevron ${open?'open':''}">&#9656;</span>
       </div>
@@ -767,11 +883,13 @@ function renderHistory() {
         ${sess.shots.map((s, j) => {
           const club = CLUBS.find(c => c.id === s.clubId);
           const time = new Date(s.time).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
-          return `<div class="session-shot">
-            <span class="ss-club">${club?.name.replace(' Iron','i').replace(' Wood','w') || s.clubId}</span>
-            <span class="ss-data">${s.carry ? s.carry+' '+d : ''}${s.total ? ' / '+s.total : ''} ${s.shape ? '<span style="color:var(--text-tertiary)">'+s.shape+'</span>' : ''}</span>
-            <span class="ss-time">${time}</span>
-            <span class="delete-btn" onclick="deleteShot(${sess.indices[j]})">&#10005;</span>
+          return `<div class="swipe-row">
+            <div class="swipe-delete" onclick="deleteShot(${sess.indices[j]})">Delete</div>
+            <div class="session-shot swipe-content" data-idx="${sess.indices[j]}">
+              <span class="ss-club">${club?.name.replace(' Iron','i').replace(' Wood','w') || s.clubId}</span>
+              <span class="ss-data">${s.carry ? s.carry+' '+d : ''}${s.total ? ' / '+s.total : ''} ${s.shape ? '<span style="color:var(--text-tertiary)">'+s.shape+'</span>' : ''}</span>
+              <span class="ss-time">${time}</span>
+            </div>
           </div>`;
         }).join('')}
         </div>
@@ -837,12 +955,71 @@ function deleteShot(idx) {
 
 function renderAll() {
   renderClubGrid(); renderStats(); renderGapping(); renderHistory(); updateSessionInfo();
+  attachSwipe();
+}
+
+// Swipe-to-delete: drag a row left to reveal Delete, or flick past threshold to delete instantly.
+function attachSwipe() {
+  document.querySelectorAll('.swipe-content').forEach(el => {
+    if (el.dataset.swipeBound) return;
+    el.dataset.swipeBound = '1';
+    let startX = 0, startY = 0, curX = 0, dragging = false, locked = null;
+    const REVEAL = 92, FLICK = 150;
+
+    const closeOthers = () => document.querySelectorAll('.swipe-content.revealed').forEach(o => { if (o !== el) o.classList.remove('revealed'); });
+
+    el.addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+      curX = el.classList.contains('revealed') ? -REVEAL : 0;
+      dragging = true; locked = null;
+      el.classList.add('dragging');
+    }, { passive: true });
+
+    el.addEventListener('touchmove', e => {
+      if (!dragging) return;
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+      if (locked === null) {
+        if (Math.abs(dx) > 8 || Math.abs(dy) > 8) locked = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+      }
+      if (locked !== 'x') return;
+      let t = (el.classList.contains('revealed') ? -REVEAL : 0) + dx;
+      t = Math.max(-FLICK, Math.min(0, t));
+      curX = t;
+      el.style.transform = `translateX(${t}px)`;
+    }, { passive: true });
+
+    el.addEventListener('touchend', () => {
+      if (!dragging) return;
+      dragging = false;
+      el.classList.remove('dragging');
+      el.style.transform = '';
+      if (curX <= -FLICK + 4) {
+        // flicked far — delete immediately
+        const idx = parseInt(el.dataset.idx, 10);
+        el.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+        el.style.transform = 'translateX(-110%)';
+        el.style.opacity = '0';
+        setTimeout(() => deleteShot(idx), 180);
+      } else if (curX < -REVEAL / 2) {
+        closeOthers();
+        el.classList.add('revealed');
+      } else {
+        el.classList.remove('revealed');
+      }
+    });
+
+    // tap a revealed row to close it
+    el.addEventListener('click', e => {
+      if (el.classList.contains('revealed')) { e.stopPropagation(); el.classList.remove('revealed'); }
+    });
+  });
 }
 
 function updateSessionInfo() {
   const shots = getShots();
   const today = shots.filter(s => new Date(s.time).toDateString() === new Date().toDateString());
-  document.getElementById('sessionInfo').textContent = today.length ? `${today.length} shots today &middot; ${shots.length} total` : shots.length ? `${shots.length} total shots` : 'Tap a club to start';
+  document.getElementById('sessionInfo').textContent = today.length ? `${today.length} shots today · ${shots.length} total` : shots.length ? `${shots.length} total shots` : 'Tap a club to start';
 }
 
 function toggleSettings() {
