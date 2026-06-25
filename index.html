@@ -3,70 +3,297 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1c1c1e">
 <title>SwingTrackr</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f2f2f7; color: #1c1c1e; max-width: 500px; margin: 0 auto; padding-bottom: 100px; }
-header { background: #fff; padding: 16px; text-align: center; border-bottom: 1px solid #e5e5ea; position: sticky; top: 0; z-index: 10; }
-header h1 { font-size: 20px; font-weight: 700; }
-header .session-info { font-size: 13px; color: #8e8e93; margin-top: 4px; }
+:root {
+  --bg: #000000;
+  --bg-secondary: #1c1c1e;
+  --bg-card: #2c2c2e;
+  --bg-card-hover: #3a3a3c;
+  --text: #ffffff;
+  --text-secondary: #ebebf5cc;
+  --text-tertiary: #ebebf54d;
+  --accent: #0a84ff;
+  --accent-glow: rgba(10, 132, 255, 0.15);
+  --green: #30d158;
+  --red: #ff453a;
+  --orange: #ff9f0a;
+  --border: #38383a;
+  --input-bg: #1c1c1e;
+  --overlay: rgba(0,0,0,0.6);
+  --shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
 
-.tabs { display: flex; background: #fff; border-bottom: 1px solid #e5e5ea; position: sticky; top: 60px; z-index: 10; }
-.tab { flex: 1; text-align: center; padding: 12px 8px; font-size: 14px; font-weight: 600; color: #8e8e93; cursor: pointer; border-bottom: 2px solid transparent; }
-.tab.active { color: #007aff; border-bottom-color: #007aff; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  max-width: 500px;
+  margin: 0 auto;
+  padding-bottom: 100px;
+  -webkit-font-smoothing: antialiased;
+}
+
+header {
+  background: var(--bg-secondary);
+  padding: 16px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0a84ff, #5e5ce6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.3px;
+}
+header .session-info { font-size: 13px; color: var(--text-tertiary); margin-top: 4px; }
+.settings-toggle {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 4px;
+}
+
+.tabs {
+  display: flex;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 58px;
+  z-index: 10;
+}
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 12px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
 .view { display: none; }
 .view.active { display: block; }
 
-/* Log View */
+/* Club Grid */
 .club-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 16px; }
-.club-btn { background: #fff; border: none; border-radius: 12px; padding: 16px 12px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.08); text-align: center; transition: transform 0.1s; }
-.club-btn:active { transform: scale(0.96); }
-.club-btn .brand { font-size: 11px; font-weight: 400; color: #8e8e93; display: block; margin-top: 2px; }
-.club-btn .avg { font-size: 12px; color: #007aff; margin-top: 4px; }
-.club-btn .count { font-size: 11px; color: #8e8e93; }
+.club-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 12px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.1s, background 0.2s, box-shadow 0.2s;
+}
+.club-btn:active { transform: scale(0.96); background: var(--bg-card-hover); }
+.club-btn .brand { font-size: 11px; font-weight: 400; color: var(--text-tertiary); display: block; margin-top: 3px; }
+.club-btn .avg { font-size: 13px; color: var(--accent); margin-top: 6px; font-weight: 600; }
+.club-btn .count { font-size: 11px; color: var(--text-tertiary); }
+.club-btn.has-data { border-color: rgba(10,132,255,0.3); box-shadow: 0 0 20px var(--accent-glow); }
 
 /* Stats View */
 .stats-list { padding: 16px; }
-.stat-card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-.stat-card h3 { font-size: 16px; margin-bottom: 8px; }
-.stat-card .stat-row { display: flex; justify-content: space-between; font-size: 14px; padding: 4px 0; color: #3a3a3c; }
-.stat-card .stat-row .label { color: #8e8e93; }
-.stat-card .shots-list { font-size: 13px; color: #8e8e93; margin-top: 6px; }
-.no-data { text-align: center; color: #8e8e93; padding: 40px; font-size: 15px; }
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+.stat-card h3 { font-size: 16px; margin-bottom: 10px; color: var(--text); }
+.stat-card .stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  padding: 5px 0;
+  color: var(--text-secondary);
+}
+.stat-card .stat-row .label { color: var(--text-tertiary); }
+.stat-card .shots-list { font-size: 12px; color: var(--text-tertiary); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.no-data { text-align: center; color: var(--text-tertiary); padding: 60px 20px; font-size: 15px; }
 
 /* Modal */
-.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: flex-end; justify-content: center; }
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--overlay);
+  z-index: 100;
+  align-items: flex-end;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
 .modal-overlay.show { display: flex; }
-.modal { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 500px; padding: 24px; padding-bottom: 40px; }
-.modal h2 { font-size: 18px; text-align: center; margin-bottom: 20px; }
-.input-group { margin-bottom: 16px; }
-.input-group label { display: block; font-size: 13px; color: #8e8e93; margin-bottom: 6px; font-weight: 500; }
-.input-group input { width: 100%; padding: 14px; font-size: 24px; font-weight: 600; border: 1px solid #e5e5ea; border-radius: 10px; text-align: center; -webkit-appearance: none; }
-.input-group input:focus { outline: none; border-color: #007aff; }
+.modal {
+  background: var(--bg-secondary);
+  border-radius: 20px 20px 0 0;
+  border-top: 1px solid var(--border);
+  width: 100%;
+  max-width: 500px;
+  padding: 24px;
+  padding-bottom: 40px;
+}
+.modal h2 { font-size: 20px; text-align: center; margin-bottom: 20px; font-weight: 700; color: var(--text); }
+.input-group { margin-bottom: 14px; }
+.input-group label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-bottom: 6px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.input-group input {
+  width: 100%;
+  padding: 14px;
+  font-size: 24px;
+  font-weight: 700;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  text-align: center;
+  color: var(--text);
+  -webkit-appearance: none;
+}
+.input-group input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.input-group input::placeholder { color: var(--text-tertiary); }
 .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-.modal-actions button { flex: 1; padding: 14px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
-.btn-cancel { background: #e5e5ea; color: #1c1c1e; }
-.btn-save { background: #007aff; color: #fff; }
-.btn-save:active { background: #0056b3; }
+.modal-actions button {
+  flex: 1;
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-cancel { background: var(--bg-card); color: var(--text-secondary); }
+.btn-save { background: var(--accent); color: #fff; }
+.btn-save:active { opacity: 0.85; }
 
-/* Quick fields row */
 .quick-fields { display: flex; gap: 8px; }
 .quick-fields .input-group { flex: 1; }
 .quick-fields input { font-size: 18px; }
 
 /* History View */
-.history-item { background: #fff; border-radius: 12px; padding: 14px 16px; margin: 0 16px 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; }
-.history-item .club-name { font-weight: 600; font-size: 15px; }
-.history-item .shot-data { text-align: right; font-size: 14px; }
-.history-item .shot-time { font-size: 11px; color: #8e8e93; }
-.history-item .delete-btn { color: #ff3b30; font-size: 13px; cursor: pointer; margin-left: 12px; font-weight: 500; }
-.section-label { padding: 12px 16px 6px; font-size: 13px; color: #8e8e93; font-weight: 600; text-transform: uppercase; }
+.history-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin: 0 16px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.history-item .club-name { font-weight: 700; font-size: 15px; color: var(--text); }
+.history-item .shot-data { text-align: right; font-size: 14px; color: var(--text-secondary); }
+.history-item .shot-time { font-size: 11px; color: var(--text-tertiary); }
+.history-item .delete-btn { color: var(--red); font-size: 13px; cursor: pointer; margin-left: 12px; font-weight: 600; }
+.section-label {
+  padding: 16px 16px 8px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
 
-/* Export button */
+/* Buttons */
 .export-bar { padding: 16px; }
-.btn-export { width: 100%; padding: 14px; background: #34c759; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
-.btn-danger { background: #ff3b30; margin-top: 8px; }
+.btn-export {
+  width: 100%;
+  padding: 15px;
+  background: var(--green);
+  color: #000;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-danger { background: var(--red); color: #fff; margin-top: 8px; }
+
+/* Settings Panel */
+.settings-panel {
+  display: none;
+  padding: 16px;
+}
+.settings-panel.active { display: block; }
+.settings-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.settings-section-title {
+  padding: 14px 16px 6px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.setting-row:last-child { border-bottom: none; }
+.setting-row .setting-label { font-size: 15px; color: var(--text); }
+.setting-row .setting-label small { display: block; font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+.pill-group {
+  display: flex;
+  background: var(--bg);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.pill {
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  background: none;
+}
+.pill.active {
+  background: var(--accent);
+  color: #fff;
+}
 </style>
 </head>
 <body>
@@ -74,9 +301,10 @@ header .session-info { font-size: 13px; color: #8e8e93; margin-top: 4px; }
 <header>
   <h1>SwingTrackr</h1>
   <div class="session-info" id="sessionInfo"></div>
+  <button class="settings-toggle" onclick="toggleSettings()" id="settingsBtn">&#9881;</button>
 </header>
 
-<div class="tabs">
+<div class="tabs" id="tabBar">
   <div class="tab active" data-view="log">Log Shot</div>
   <div class="tab" data-view="stats">Averages</div>
   <div class="tab" data-view="history">History</div>
@@ -98,24 +326,51 @@ header .session-info { font-size: 13px; color: #8e8e93; margin-top: 4px; }
   <div id="historyList"></div>
 </div>
 
+<div id="settingsView" class="settings-panel">
+  <div class="section-label">Units</div>
+  <div class="settings-section">
+    <div class="setting-row">
+      <div class="setting-label">Distance<small>Carry &amp; total</small></div>
+      <div class="pill-group" data-setting="distance">
+        <button class="pill" data-value="yds">Yards</button>
+        <button class="pill" data-value="m">Meters</button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">Speed<small>Ball &amp; club speed</small></div>
+      <div class="pill-group" data-setting="speed">
+        <button class="pill" data-value="mph">mph</button>
+        <button class="pill" data-value="kph">km/h</button>
+      </div>
+    </div>
+  </div>
+  <div class="section-label" style="margin-top:8px">About</div>
+  <div class="settings-section">
+    <div class="setting-row">
+      <div class="setting-label">SwingTrackr<small>Sim session logger</small></div>
+      <div style="font-size:13px;color:var(--text-tertiary)">v1.0</div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <h2 id="modalTitle">Log Shot</h2>
     <div class="input-group">
-      <label>Carry Distance (yds)</label>
+      <label id="labelCarry">Carry Distance (yds)</label>
       <input type="number" id="inputCarry" inputmode="decimal" placeholder="0">
     </div>
     <div class="input-group">
-      <label>Total Distance (yds)</label>
+      <label id="labelTotal">Total Distance (yds)</label>
       <input type="number" id="inputTotal" inputmode="decimal" placeholder="0">
     </div>
     <div class="quick-fields">
       <div class="input-group">
-        <label>Ball Speed (mph)</label>
+        <label id="labelBallSpeed">Ball Speed (mph)</label>
         <input type="number" id="inputBallSpeed" inputmode="decimal" placeholder="—">
       </div>
       <div class="input-group">
-        <label>Club Speed (mph)</label>
+        <label id="labelClubSpeed">Club Speed (mph)</label>
         <input type="number" id="inputClubSpeed" inputmode="decimal" placeholder="—">
       </div>
     </div>
@@ -153,7 +408,21 @@ const CLUBS = [
 ];
 
 const STORAGE_KEY = 'swingtrackr_shots';
+const SETTINGS_KEY = 'swingtrackr_settings';
 let currentClub = null;
+
+function getSettings() {
+  return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{"distance":"yds","speed":"mph"}');
+}
+function saveSetting(key, value) {
+  const s = getSettings();
+  s[key] = value;
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+}
+function distUnit() { return getSettings().distance; }
+function speedUnit() { return getSettings().speed; }
+function distLabel() { return distUnit() === 'yds' ? 'yds' : 'm'; }
+function speedLabel() { return speedUnit() === 'mph' ? 'mph' : 'km/h'; }
 
 function getShots() {
   return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
@@ -187,11 +456,13 @@ function getClubStats(clubId) {
 
 function renderClubGrid() {
   const grid = document.getElementById('clubGrid');
+  const dl = distLabel();
   grid.innerHTML = CLUBS.map(c => {
     const stats = getClubStats(c.id);
-    return `<button class="club-btn" onclick="openModal('${c.id}')">
+    const hasData = stats != null;
+    return `<button class="club-btn${hasData ? ' has-data' : ''}" onclick="openModal('${c.id}')">
       ${c.name}<span class="brand">${c.brand}</span>
-      ${stats ? `<div class="avg">${stats.avgCarry || '—'} yds</div><div class="count">${stats.count} shot${stats.count>1?'s':''}</div>` : '<div class="avg" style="color:#8e8e93">No data</div>'}
+      ${hasData ? `<div class="avg">${stats.avgCarry || '—'} ${dl}</div><div class="count">${stats.count} shot${stats.count>1?'s':''}</div>` : '<div class="avg" style="color:var(--text-tertiary)">No data</div>'}
     </button>`;
   }).join('');
 }
@@ -199,6 +470,8 @@ function renderClubGrid() {
 function renderStats() {
   const list = document.getElementById('statsList');
   const clubsWithData = CLUBS.filter(c => getClubStats(c.id));
+  const dl = distLabel();
+  const sl = speedLabel();
   if (!clubsWithData.length) {
     list.innerHTML = '<div class="no-data">No shots logged yet.<br>Tap a club to start!</div>';
     return;
@@ -207,11 +480,11 @@ function renderStats() {
     const s = getClubStats(c.id);
     const row = (label, val, unit='') => val != null ? `<div class="stat-row"><span class="label">${label}</span><span>${val}${unit}</span></div>` : '';
     return `<div class="stat-card">
-      <h3>${c.name} <span style="font-weight:400;color:#8e8e93;font-size:13px">(${s.count} shots)</span></h3>
-      ${row('Avg Carry', s.avgCarry, ' yds')}
-      ${row('Avg Total', s.avgTotal, ' yds')}
-      ${row('Avg Ball Speed', s.avgBallSpeed, ' mph')}
-      ${row('Avg Club Speed', s.avgClubSpeed, ' mph')}
+      <h3>${c.name} <span style="font-weight:400;color:var(--text-tertiary);font-size:13px">(${s.count} shots)</span></h3>
+      ${row('Avg Carry', s.avgCarry, ' ' + dl)}
+      ${row('Avg Total', s.avgTotal, ' ' + dl)}
+      ${row('Avg Ball Speed', s.avgBallSpeed, ' ' + sl)}
+      ${row('Avg Club Speed', s.avgClubSpeed, ' ' + sl)}
       ${row('Avg Launch', s.avgLaunch, '°')}
       ${row('Avg Spin', s.avgSpin, ' rpm')}
       <div class="shots-list">Carries: ${s.shots.map(x => x.carry || '—').join(', ')}</div>
@@ -222,6 +495,8 @@ function renderStats() {
 function renderHistory() {
   const list = document.getElementById('historyList');
   const shots = getShots().slice().reverse();
+  const dl = distLabel();
+  const sl = speedLabel();
   if (!shots.length) {
     list.innerHTML = '<div class="no-data">No shots yet.</div>';
     return;
@@ -235,12 +510,21 @@ function renderHistory() {
       <div style="display:flex;align-items:center">
         <div class="shot-data">
           ${s.carry ? s.carry + ' carry' : ''}${s.total ? ' / ' + s.total + ' total' : ''}
-          ${s.ballSpeed ? '<br>' + s.ballSpeed + ' mph ball' : ''}
+          ${s.ballSpeed ? '<br>' + s.ballSpeed + ' ' + sl : ''}
         </div>
         <span class="delete-btn" onclick="deleteShot(${realIdx})">Delete</span>
       </div>
     </div>`;
   }).join('');
+}
+
+function updateModalLabels() {
+  const dl = distLabel();
+  const sl = speedLabel();
+  document.getElementById('labelCarry').textContent = `Carry Distance (${dl})`;
+  document.getElementById('labelTotal').textContent = `Total Distance (${dl})`;
+  document.getElementById('labelBallSpeed').textContent = `Ball Speed (${sl})`;
+  document.getElementById('labelClubSpeed').textContent = `Club Speed (${sl})`;
 }
 
 function openModal(clubId) {
@@ -253,6 +537,7 @@ function openModal(clubId) {
   document.getElementById('inputClubSpeed').value = '';
   document.getElementById('inputLaunch').value = '';
   document.getElementById('inputSpin').value = '';
+  updateModalLabels();
   document.getElementById('modal').classList.add('show');
   setTimeout(() => document.getElementById('inputCarry').focus(), 100);
 }
@@ -302,17 +587,51 @@ function updateSessionInfo() {
   document.getElementById('sessionInfo').textContent = shots.length ? `${shots.length} shots logged` : 'Tap a club to log your first shot';
 }
 
+function toggleSettings() {
+  const panel = document.getElementById('settingsView');
+  const views = document.querySelectorAll('.view');
+  const tabs = document.querySelectorAll('.tab');
+  const isOpen = panel.classList.contains('active');
+
+  if (isOpen) {
+    panel.classList.remove('active');
+    document.querySelector('.tab.active')?.click() || (document.querySelector('[data-view="log"]').click());
+  } else {
+    views.forEach(v => v.classList.remove('active'));
+    tabs.forEach(t => t.classList.remove('active'));
+    panel.classList.add('active');
+  }
+}
+
+function initSettings() {
+  const settings = getSettings();
+  document.querySelectorAll('.pill-group').forEach(group => {
+    const key = group.dataset.setting;
+    group.querySelectorAll('.pill').forEach(pill => {
+      pill.classList.toggle('active', pill.dataset.value === settings[key]);
+      pill.addEventListener('click', () => {
+        group.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        saveSetting(key, pill.dataset.value);
+        renderAll();
+      });
+    });
+  });
+}
+
 function exportData() {
   const clubsWithData = CLUBS.filter(c => getClubStats(c.id));
   if (!clubsWithData.length) { alert('No data to export'); return; }
+  const dl = distLabel();
+  const sl = speedLabel();
   let text = 'SwingTrackr Session - ' + new Date().toLocaleDateString() + '\n' + '='.repeat(40) + '\n\n';
   clubsWithData.forEach(c => {
     const s = getClubStats(c.id);
     text += `${c.name} (${s.count} shots)\n`;
-    if (s.avgCarry) text += `  Avg Carry: ${s.avgCarry} yds\n`;
-    if (s.avgTotal) text += `  Avg Total: ${s.avgTotal} yds\n`;
-    if (s.avgBallSpeed) text += `  Avg Ball Speed: ${s.avgBallSpeed} mph\n`;
-    if (s.avgClubSpeed) text += `  Avg Club Speed: ${s.avgClubSpeed} mph\n`;
+    if (s.avgCarry) text += `  Avg Carry: ${s.avgCarry} ${dl}\n`;
+    if (s.avgTotal) text += `  Avg Total: ${s.avgTotal} ${dl}\n`;
+    if (s.avgBallSpeed) text += `  Avg Ball Speed: ${s.avgBallSpeed} ${sl}\n`;
+    if (s.avgClubSpeed) text += `  Avg Club Speed: ${s.avgClubSpeed} ${sl}\n`;
     if (s.avgLaunch) text += `  Avg Launch: ${s.avgLaunch}°\n`;
     if (s.avgSpin) text += `  Avg Spin: ${s.avgSpin} rpm\n`;
     text += `  All carries: ${s.shots.map(x => x.carry || '—').join(', ')}\n\n`;
@@ -334,16 +653,17 @@ document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('settingsView').classList.remove('active');
     tab.classList.add('active');
     document.getElementById(tab.dataset.view).classList.add('active');
   });
 });
 
-// Close modal on overlay click
 document.getElementById('modal').addEventListener('click', e => {
   if (e.target === document.getElementById('modal')) closeModal();
 });
 
+initSettings();
 renderAll();
 </script>
 </body>
