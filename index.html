@@ -385,13 +385,17 @@ header h1 {
   max-height: 92vh; overflow-y: auto;
   position: relative; z-index: 1;
 }
-.modal-handle {
-  width: 36px; height: 4px; background: var(--text-tertiary); border-radius: 2px;
-  margin: 8px auto 20px; cursor: grab; padding: 10px 0; background-clip: content-box;
+.modal-close {
+  position: absolute; top: 16px; right: 16px; z-index: 2;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--bg-input); border: 1px solid var(--border);
+  color: var(--text-secondary); font-size: 14px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.18s ease;
 }
-.modal.dragging { transition: none !important; animation: none !important; }
+.modal-close:active { transform: scale(0.9); background: var(--bg-card-hover); color: var(--text); }
 .modal h2 {
-  font-size: 22px; text-align: center; margin-bottom: 24px;
+  font-size: 22px; text-align: center; margin: 16px 0 24px;
   font-weight: 800; letter-spacing: -0.3px; color: var(--text);
 }
 .input-group { margin-bottom: 16px; }
@@ -625,7 +629,7 @@ header h1 {
 <div class="modal-overlay" id="setupModal">
   <div class="modal-bg" onclick="closeQuickSetup()"></div>
   <div class="modal">
-    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeQuickSetup()" aria-label="Close">&#10005;</button>
     <h2>Build Your Bag</h2>
     <p class="setup-intro">Tap the clubs you carry, then set a brand.</p>
     <div class="input-group">
@@ -643,7 +647,7 @@ header h1 {
 <div class="modal-overlay" id="modal">
   <div class="modal-bg" onclick="closeModal()"></div>
   <div class="modal">
-    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal()" aria-label="Close">&#10005;</button>
     <h2 id="modalTitle">Log Shot</h2>
     <div class="input-group">
       <label id="labelCarry">Carry Distance</label>
@@ -1242,45 +1246,6 @@ function applyQuickSetup() {
   closeQuickSetup();
   showToast('Bag created');
 }
-
-// ── Drag-to-dismiss on modals ──
-function initModalDrag(overlayId, closeFn) {
-  const overlay = document.getElementById(overlayId);
-  const modal = overlay.querySelector('.modal');
-  const handle = modal.querySelector('.modal-handle');
-  let startY = 0, curY = 0, dragging = false;
-  const DISMISS = 120;
-
-  handle.addEventListener('touchstart', e => {
-    startY = e.touches[0].clientY; curY = 0; dragging = true;
-    modal.classList.add('dragging');
-  }, { passive: true });
-
-  handle.addEventListener('touchmove', e => {
-    if (!dragging) return;
-    curY = Math.max(0, e.touches[0].clientY - startY);
-    modal.style.transform = `translateY(${curY}px)`;
-    overlay.querySelector('.modal-bg').style.opacity = Math.max(0, 1 - curY / 300);
-  }, { passive: true });
-
-  handle.addEventListener('touchend', () => {
-    if (!dragging) return;
-    dragging = false;
-    modal.classList.remove('dragging');
-    if (curY > DISMISS) {
-      modal.style.transition = 'transform 0.2s ease';
-      modal.style.transform = 'translateY(100%)';
-      setTimeout(() => { closeFn(); modal.style.transform = ''; modal.style.transition = ''; overlay.querySelector('.modal-bg').style.opacity = ''; }, 220);
-    } else {
-      modal.style.transition = 'transform 0.25s cubic-bezier(0.32,0.72,0,1)';
-      modal.style.transform = '';
-      overlay.querySelector('.modal-bg').style.opacity = '';
-      setTimeout(() => { modal.style.transition = ''; }, 260);
-    }
-  });
-}
-initModalDrag('modal', closeModal);
-initModalDrag('setupModal', closeQuickSetup);
 
 function initSettings() {
   const settings = getSettings();
