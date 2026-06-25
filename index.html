@@ -359,6 +359,12 @@ header h1 {
 }
 .swipe-content.dragging { transition: none; }
 .swipe-content.revealed { transform: translateX(-92px); }
+.del-btn {
+  background: none; border: none; color: var(--red); font-size: 16px;
+  padding: 4px 8px; cursor: pointer; opacity: 0.7; flex-shrink: 0;
+  margin-left: auto;
+}
+.del-btn:hover, .del-btn:active { opacity: 1; }
 
 /* ── Modal ── */
 .modal-overlay {
@@ -765,7 +771,7 @@ function renderStats() {
         ${buildDispersionViz(s, d)}
         ${buildShapeViz(s)}
         <div class="stat-divider"></div>
-        <div class="shots-header">Individual Shots <span style="float:right;text-transform:none;letter-spacing:0;font-weight:500;opacity:0.7">swipe to delete</span></div>
+        <div class="shots-header">Individual Shots</div>
         ${s.shots.map((shot, i) => {
           const allShots = getShots();
           const realIdx = allShots.findIndex(x => x.time === shot.time && x.clubId === shot.clubId);
@@ -780,6 +786,7 @@ function renderStats() {
                 ${shot.notes ? '<div class="shot-note">'+shot.notes+'</div>' : ''}
               </div>
               ${shot.shape ? '<span class="shot-shape-tag">'+shot.shape+'</span>' : ''}
+              <button class="del-btn" onclick="event.stopPropagation();deleteShot(${realIdx})">✕</button>
             </div>
           </div>`;
         }).join('')}
@@ -889,6 +896,7 @@ function renderHistory() {
               <span class="ss-club">${club?.name.replace(' Iron','i').replace(' Wood','w') || s.clubId}</span>
               <span class="ss-data">${s.carry ? s.carry+' '+d : ''}${s.total ? ' / '+s.total : ''} ${s.shape ? '<span style="color:var(--text-tertiary)">'+s.shape+'</span>' : ''}</span>
               <span class="ss-time">${time}</span>
+              <button class="del-btn" onclick="event.stopPropagation();deleteShot(${sess.indices[j]})">✕</button>
             </div>
           </div>`;
         }).join('')}
@@ -983,11 +991,12 @@ function attachSwipe() {
         if (Math.abs(dx) > 8 || Math.abs(dy) > 8) locked = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
       }
       if (locked !== 'x') return;
+      e.preventDefault();
       let t = (el.classList.contains('revealed') ? -REVEAL : 0) + dx;
       t = Math.max(-FLICK, Math.min(0, t));
       curX = t;
       el.style.transform = `translateX(${t}px)`;
-    }, { passive: true });
+    }, { passive: false });
 
     el.addEventListener('touchend', () => {
       if (!dragging) return;
