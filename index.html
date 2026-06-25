@@ -318,7 +318,6 @@ header .session-info { font-size: 13px; color: var(--text-tertiary); margin-top:
   <div class="stats-list" id="statsList"></div>
   <div class="export-bar">
     <button class="btn-export" onclick="exportData()">Export Session (Copy)</button>
-    <button class="btn-export btn-danger" onclick="clearSession()">Clear Session</button>
   </div>
 </div>
 
@@ -501,11 +500,19 @@ function renderHistory() {
     list.innerHTML = '<div class="no-data">No shots yet.</div>';
     return;
   }
-  list.innerHTML = '<div class="section-label">Recent Shots</div>' + shots.map((s, i) => {
+  let html = '';
+  let lastDate = '';
+  shots.forEach((s, i) => {
     const club = CLUBS.find(c => c.id === s.clubId);
-    const time = new Date(s.time).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+    const d = new Date(s.time);
+    const dateStr = d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+    const time = d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
     const realIdx = shots.length - 1 - i;
-    return `<div class="history-item">
+    if (dateStr !== lastDate) {
+      lastDate = dateStr;
+      html += `<div class="section-label">${dateStr}</div>`;
+    }
+    html += `<div class="history-item">
       <div><div class="club-name">${club?.name || s.clubId}</div><div class="shot-time">${time}</div></div>
       <div style="display:flex;align-items:center">
         <div class="shot-data">
@@ -515,7 +522,8 @@ function renderHistory() {
         <span class="delete-btn" onclick="deleteShot(${realIdx})">Delete</span>
       </div>
     </div>`;
-  }).join('');
+  });
+  list.innerHTML = html;
 }
 
 function updateModalLabels() {
@@ -639,13 +647,6 @@ function exportData() {
   navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!')).catch(() => {
     const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); alert('Copied!');
   });
-}
-
-function clearSession() {
-  if (confirm('Clear all shots? This cannot be undone.')) {
-    localStorage.removeItem(STORAGE_KEY);
-    renderAll();
-  }
 }
 
 // Tab switching
